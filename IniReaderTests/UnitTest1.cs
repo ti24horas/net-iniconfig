@@ -83,5 +83,35 @@ namespace IniReaderTests
             }
             Assert.Fail("should throw DuplicateNameException");
         }
+
+        [TestMethod]
+        public void TestUnamedSectionWithStartingtabsCanBeHandled()
+        {
+            var sb = new StringBuilder("            [section]");
+            sb.AppendLine();
+            sb.AppendLine("host = google.com.br");
+            sb.AppendLine("port = 81");
+            var cfg = IniFileReader.Load(sb.ToString());
+            var section = cfg.GetSection("section");
+            Assert.IsNotNull(section);
+            Assert.AreEqual("section", section.Section);
+            Assert.IsTrue(section.Attributes.Any(c => c.AttributeName == "host" && c.Value == "google.com.br"));
+            Assert.IsTrue(section.Attributes.Any(c => c.AttributeName == "port" && c.Value == "81"));
+        }
+        [TestMethod]
+        public void TestUnamedSectionWithTabbedAttributesCanBeHandled()
+        {
+            var sb = new StringBuilder("[section]");
+            sb.AppendLine();
+            sb.AppendLine("\thost = google.com.br");
+            sb.AppendLine("\t\tport = 81");
+            var cfg = IniFileReader.Load(sb.ToString());
+            var section = cfg.GetSection("section");
+            Assert.IsNotNull(section);
+            Assert.AreEqual("section", section.Section);
+            Assert.IsTrue(section.Attributes.Any(c => c.AttributeName == "host" && c.Value == "google.com.br"));
+            Assert.IsTrue(section.Attributes.Any(c => c.AttributeName == "port" && c.Value == "81"));
+        }
+
     }
 }
