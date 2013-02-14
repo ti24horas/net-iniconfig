@@ -35,7 +35,14 @@ namespace IniReader
             }
             public bool IsAttribute()
             {
-                return !IsSection() && !IsComment() && !IsEmpty();
+                var isSection = IsSection();
+                if(isSection) return false;
+                var isComment = IsComment();
+                if(isComment)return false;
+                var isEmpty = IsEmpty();
+                if (isEmpty)
+                    return false;
+                return true;
             }
             public bool ReadNext()
             {
@@ -49,7 +56,8 @@ namespace IniReader
         }
         public static Config Load(string str)
         {
-            return Load(new StringReader(str));
+            using (var reader = new StringReader(str))
+            return Load(reader);
         }
         public static Config Load(TextReader reader, bool ignoreDuplicates = false)
         {
@@ -79,12 +87,9 @@ namespace IniReader
                         var attr = AttributeValue.LoadFromString(tokenReader.GetValue());
                         if (!ignoreDuplicates)
                         {
-                            if (values != null)
-                            {
-                                if (values.ContainsKey(attr.AttributeName))
-                                    throw new DuplicateNameException("attributename");
-                                values[attr.AttributeName] = attr;
-                            }
+                            if (values.ContainsKey(attr.AttributeName))
+                                throw new DuplicateNameException("attributename");
+                            values[attr.AttributeName] = attr;
                         }
                         currentSection.AddAttribute(attr);
                     }
@@ -95,9 +100,6 @@ namespace IniReader
             }
             return new Config(sections);
         }
-        public static Config Load(Stream stream)
-        {
-            return Load(new StreamReader(stream));
-        }
+        
     }
 }

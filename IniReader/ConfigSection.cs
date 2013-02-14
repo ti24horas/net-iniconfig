@@ -16,6 +16,7 @@ namespace IniReader
             this.Section = sectionName;
             this.Name = name;
         }
+        /*
         public string this[string index]
         {
             get
@@ -26,7 +27,7 @@ namespace IniReader
             {
                 this._attributes[index] = new AttributeValue(index, value);
             }
-        }
+        }*/
         internal static ConfigSection FromName(string namedSection)
         {
             var regex = new Regex(@"\t*\[(?<section>.+[^\""])(\s+\""(?<name>.+)\""){0,1}]", RegexOptions.Singleline);
