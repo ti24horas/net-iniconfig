@@ -10,13 +10,12 @@ namespace IniReader
         public string Section { get; private set; }
         public string Name { get; private set; }
         public IEnumerable<AttributeValue> Attributes { get { return _attributes.Select(c => c.Value); } }
-        readonly IDictionary<string, AttributeValue> _attributes = new Dictionary<string, AttributeValue>();
+        readonly IDictionary<string, AttributeValue> _attributes = new Dictionary<string, AttributeValue>(StringComparer.InvariantCultureIgnoreCase);
         public ConfigSection(string sectionName, string name = null)
         {
             this.Section = sectionName;
             this.Name = name;
         }
-        /*
         public string this[string index]
         {
             get
@@ -27,7 +26,7 @@ namespace IniReader
             {
                 this._attributes[index] = new AttributeValue(index, value);
             }
-        }*/
+        }
         internal static ConfigSection FromName(string namedSection)
         {
             var regex = new Regex(@"\t*\[(?<section>.+[^\""])(\s+\""(?<name>.+)\""){0,1}]", RegexOptions.Singleline);
