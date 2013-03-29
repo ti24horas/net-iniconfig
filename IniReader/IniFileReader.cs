@@ -100,6 +100,14 @@ namespace IniReader
             }
             return new Config(sections);
         }
+
+        public static Config LoadFile(string filename)
+        {
+            using (var sr = new StreamReader(filename))
+            {
+                return Load(sr);
+            }
+        }
         
     }
 }
