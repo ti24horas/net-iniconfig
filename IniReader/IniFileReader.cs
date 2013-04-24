@@ -1,64 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.IO;
-
-namespace IniReader
+﻿namespace IniReader
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Data;
+    using System.Globalization;
+    using System.IO;
+    using System.Linq;
+
     public class IniFileReader
     {
-        class TokenReader
-        {
-            private string _currentToken;
-            private readonly TextReader _reader;
+        private const string CommentChars = "#;";
 
-            public TokenReader(TextReader reader)
-            {
-                this._reader = reader;
-
-            }
-
-            private bool IsComment()
-            {
-                return _currentToken.Trim(new[] {' ', '\t'}).StartsWith("#");
-
-            }
-
-            private bool IsEmpty()
-            {
-                return _currentToken.Trim(new[] {' ', '\t'}).Length == 0;
-            }
-            public bool IsSection()
-            {
-                var trimmed = _currentToken.Trim(new[] {' ', '\t'});
-                return (trimmed.StartsWith("[") && trimmed.EndsWith("]"));
-            }
-            public bool IsAttribute()
-            {
-                var isSection = IsSection();
-                if(isSection) return false;
-                var isComment = IsComment();
-                if(isComment)return false;
-                var isEmpty = IsEmpty();
-                if (isEmpty)
-                    return false;
-                return true;
-            }
-            public bool ReadNext()
-            {
-                _currentToken = _reader.ReadLine();
-                return _currentToken != null;
-            }
-            public string GetValue()
-            {
-                return _currentToken;
-            }
-        }
         public static Config Load(string str)
         {
             using (var reader = new StringReader(str))
-            return Load(reader);
+            {   
+                return Load(reader);
+            }
         }
+
         public static Config Load(TextReader reader, bool ignoreDuplicates = false)
         {
             var sections = new List<ConfigSection>();
@@ -78,26 +38,35 @@ namespace IniReader
 
                         currentSection = ConfigSection.FromName(tokenReader.GetValue());
                         values = new Dictionary<string, AttributeValue>();
-                        
                     }
                     else if (tokenReader.IsAttribute())
                     {
                         if (currentSection == null)
+                        {
                             throw new InvalidOperationException("attribute value without section");
+                        }
+
                         var attr = AttributeValue.LoadFromString(tokenReader.GetValue());
                         if (!ignoreDuplicates)
                         {
                             if (values.ContainsKey(attr.AttributeName))
+                            {
                                 throw new DuplicateNameException("attributename");
+                            }
+
                             values[attr.AttributeName] = attr;
                         }
+
                         currentSection.AddAttribute(attr);
                     }
                 }
-                if (currentSection != null)
-                    sections.Add(currentSection);
 
+                if (currentSection != null)
+                {
+                    sections.Add(currentSection);
+                }
             }
+
             return new Config(sections);
         }
 
@@ -108,6 +77,59 @@ namespace IniReader
                 return Load(sr);
             }
         }
-        
+
+        private class TokenReader
+        {
+            private readonly TextReader reader;
+
+            private string currentToken;
+
+            public TokenReader(TextReader reader)
+            {
+                this.reader = reader;
+            }
+
+            public bool IsSection()
+            {
+                var trimmed = this.currentToken.Trim(new[] { ' ', '\t' });
+                return trimmed.StartsWith("[") && trimmed.EndsWith("]");
+            }
+
+            public bool IsAttribute()
+            {
+                if (this.IsSection())
+                {
+                    return false;
+                }
+
+                if (this.IsComment())
+                {
+                    return false;
+                }
+
+                return !this.IsEmpty();
+            }
+
+            public bool ReadNext()
+            {
+                this.currentToken = this.reader.ReadLine();
+                return this.currentToken != null;
+            }
+
+            public string GetValue()
+            {
+                return this.currentToken;
+            }
+
+            private bool IsComment()
+            {
+                return CommentChars.Any(a => this.currentToken.Trim(new[] { ' ', '\t' }).StartsWith(a.ToString(CultureInfo.InvariantCulture)));
+            }
+
+            private bool IsEmpty()
+            {
+                return this.currentToken.Trim(new[] { ' ', '\t' }).Length == 0;
+            }
+        }
     }
 }

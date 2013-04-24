@@ -1,7 +1,7 @@
-﻿using System.Text.RegularExpressions;
-
-namespace IniReader
+﻿namespace IniReader
 {
+    using System.Text.RegularExpressions;
+
     public class AttributeValue
     {
         public AttributeValue(string attributeName, string value = null)
@@ -20,9 +20,10 @@ namespace IniReader
             var match = regexAttributeValue.Match(value);
             if (!match.Success)
             {
-                //if not found a match with kvp, then this attribute does not 
-                return new AttributeValue(value.Trim(new[]{' ', '\t'}));
+                // if not found a match with kvp, then this attribute does not 
+                return new AttributeValue(value.Trim(new[] { ' ', '\t' }));
             }
+
             return new AttributeValue(match.Groups["name"].Value, match.Groups["value"].Value);
         }
     }
