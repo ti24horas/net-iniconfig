@@ -33,11 +33,6 @@
             {
                 return this.attributes.ContainsKey(index) ? this.attributes[index].Value : null;
             }
-
-            set
-            {
-                this.attributes[index] = new AttributeValue(index, value);
-            }
         }
 
         public void AddAttribute(AttributeValue attr)

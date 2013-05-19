@@ -7,10 +7,21 @@
     using System.IO;
     using System.Linq;
 
+    /// <summary>
+    /// Class used to read ini file
+    /// </summary>
     public class IniFileReader
     {
+        /// <summary>
+        /// chars used as comments at line start
+        /// </summary>
         private const string CommentChars = "#;";
 
+        /// <summary>
+        /// Loads a ini file from string
+        /// </summary>
+        /// <param name="str">The content representing ini file</param>
+        /// <returns>The configuration reader</returns>
         public static Config Load(string str)
         {
             using (var reader = new StringReader(str))
@@ -18,7 +29,13 @@
                 return Load(reader);
             }
         }
-
+        
+        /// <summary>
+        /// Loads a ini file from TextReader
+        /// </summary>
+        /// <param name="reader">The text reader containing ini file contents</param>
+        /// <param name="ignoreDuplicates">If true, ignores duplicate attributes in section</param>
+        /// <returns>The configuration reader</returns>
         public static Config Load(TextReader reader, bool ignoreDuplicates = false)
         {
             var sections = new List<ConfigSection>();
@@ -70,6 +87,11 @@
             return new Config(sections);
         }
 
+        /// <summary>
+        /// Returns a configuration containing ini file contents
+        /// </summary>
+        /// <param name="filename">The filename containing ini file contents</param>
+        /// <returns>The configuration reader</returns>
         public static Config LoadFile(string filename)
         {
             using (var sr = new StreamReader(filename))

@@ -21,7 +21,7 @@
             if (!match.Success)
             {
                 // if not found a match with kvp, then this attribute does not 
-                return new AttributeValue(value.Trim(new[] { ' ', '\t' }));
+                return new AttributeValue(value.Trim(new[] { ' ', '\t' }), "true");
             }
 
             return new AttributeValue(match.Groups["name"].Value, match.Groups["value"].Value);
